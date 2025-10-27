@@ -278,7 +278,7 @@ export default function Home() {
                 letterSpacing: "0.2em",
               }}
             >
-              Em breve
+              Em Breve
             </p>
           </div>
         </div>
