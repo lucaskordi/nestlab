@@ -23,6 +23,8 @@ export default function Home() {
   const animationFrameRef = useRef<number>(0);
   const lastAccelRef = useRef({ x: 0, y: 0, z: 0 });
   const shakeThreshold = 15;
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const cursorPosition = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     setMounted(true);
@@ -39,6 +41,13 @@ export default function Home() {
         x: (e.clientX - centerX) / centerX,
         y: (e.clientY - centerY) / centerY,
       };
+
+      cursorPosition.current = { x: e.clientX, y: e.clientY };
+      
+      if (cursorRef.current) {
+        cursorRef.current.style.left = `${e.clientX}px`;
+        cursorRef.current.style.top = `${e.clientY}px`;
+      }
     };
 
     const handleDeviceOrientation = (e: DeviceOrientationEvent) => {
@@ -178,9 +187,25 @@ export default function Home() {
       }
     };
 
+    const animateCursor = () => {
+      if (cursorRef.current) {
+        const smoothX = cursorRef.current.offsetLeft;
+        const smoothY = cursorRef.current.offsetTop;
+        const targetX = cursorPosition.current.x;
+        const targetY = cursorPosition.current.y;
+        
+        const newX = smoothX + (targetX - smoothX) * 0.15;
+        const newY = smoothY + (targetY - smoothY) * 0.15;
+        
+        cursorRef.current.style.left = `${newX}px`;
+        cursorRef.current.style.top = `${newY}px`;
+      }
+    };
+
     const animate = () => {
       animateParticles();
       animateLogo();
+      animateCursor();
       animationFrameRef.current = requestAnimationFrame(animate);
     };
 
@@ -201,17 +226,15 @@ export default function Home() {
     return (
       <div className="relative h-screen bg-black overflow-hidden" style={{ position: 'fixed', width: '100%', height: '100%' }}>
         <canvas className="absolute top-0 left-0 w-full h-full" />
-                                                            <div className="relative z-10 flex flex-col items-center h-screen overflow-hidden">
-               <div className="flex-1 flex items-center justify-center px-4">
-                 <div className="w-[80%] max-w-[600px] h-auto">
-                   <img
-                     src="/logowhite.svg"
-                     alt="Logo"
-                     className="w-full h-full"
-                   />
-                 </div>
+                                                            <div className="relative z-10 flex flex-col items-center h-screen overflow-hidden justify-center">
+               <div className="w-[85%] max-w-[800px] h-auto px-4 mb-8 md:mb-12">
+                 <img
+                   src="/logowhite.svg"
+                   alt="Logo"
+                   className="w-full h-full"
+                 />
                </div>
-             <div className="pb-10 md:pb-20 px-4">
+             <div className="px-4">
               <div
                 className="relative px-4 py-2 md:px-6 md:py-3 rounded-full border-2 border-[#00ff5f] backdrop-blur-md"
                 style={{
@@ -240,27 +263,36 @@ export default function Home() {
 
   return (
     <div className="relative h-screen bg-black overflow-hidden" style={{ position: 'fixed', width: '100%', height: '100%' }}>
+      <div
+        ref={cursorRef}
+        className="fixed pointer-events-none w-10 h-10 rounded-full border-2 border-[#00ff5f] transition-opacity duration-300"
+        style={{
+          background: 'rgba(0, 255, 95, 0.05)',
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 0 20px rgba(0, 255, 95, 0.5)',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 9999,
+        }}
+      />
       <canvas
         ref={particlesRef}
         className="absolute top-0 left-0 w-full h-full"
         style={{ zIndex: 0 }}
       />
-      <div className="relative z-10 flex flex-col items-center h-screen overflow-hidden">
-        <div className="flex-1 flex items-center justify-center">
-          <div
-            ref={logoRef}
-            className="w-[80%] max-w-[600px] h-auto px-4"
-            style={{ transformStyle: "preserve-3d" }}
-          >
-            <img
-              ref={logoImgRef}
-              src="/logowhite.svg"
-              alt="Logo"
-              className="w-full h-full"
-            />
-          </div>
+      <div className="relative z-10 flex flex-col items-center h-screen overflow-hidden justify-center">
+        <div
+          ref={logoRef}
+          className="w-[85%] max-w-[800px] h-auto px-4 mb-8 md:mb-12"
+          style={{ transformStyle: "preserve-3d" }}
+        >
+          <img
+            ref={logoImgRef}
+            src="/logowhite.svg"
+            alt="Logo"
+            className="w-full h-full"
+          />
         </div>
-        <div className="pb-10 md:pb-20 px-4">
+        <div className="px-4">
           <div
             className="relative px-4 py-2 md:px-6 md:py-3 rounded-full border-2 border-[#00ff5f] backdrop-blur-md"
             style={{
