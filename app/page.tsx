@@ -21,6 +21,8 @@ export default function Home() {
   const shadowRef = useRef({ x: 0, y: 0 });
   const particles = useRef<Particle[]>([]);
   const animationFrameRef = useRef<number>(0);
+  const lastAccelRef = useRef({ x: 0, y: 0, z: 0 });
+  const shakeThreshold = 15;
 
   useEffect(() => {
     setMounted(true);
@@ -28,6 +30,58 @@ export default function Home() {
 
   useEffect(() => {
     if (!mounted) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const centerX = window.innerWidth / 2;
+      const centerY = window.innerHeight / 2;
+      
+      mouseRef.current = {
+        x: (e.clientX - centerX) / centerX,
+        y: (e.clientY - centerY) / centerY,
+      };
+    };
+
+    const handleDeviceOrientation = (e: DeviceOrientationEvent) => {
+      if (e.gamma !== null && e.beta !== null) {
+        const gamma = e.gamma / 45;
+        const beta = e.beta / 45;
+        mouseRef.current = {
+          x: Math.max(-1, Math.min(1, gamma)),
+          y: Math.max(-1, Math.min(1, beta)),
+        };
+      }
+    };
+
+    const handleDeviceMotion = (e: DeviceMotionEvent) => {
+      if (e.accelerationIncludingGravity) {
+        const accel = e.accelerationIncludingGravity;
+        if (accel.x !== null && accel.y !== null) {
+          mouseRef.current = {
+            x: Math.max(-1, Math.min(1, accel.x / 10)),
+            y: Math.max(-1, Math.min(1, accel.y / 10)),
+          };
+
+          const deltaX = Math.abs(accel.x - lastAccelRef.current.x);
+          const deltaY = Math.abs(accel.y - lastAccelRef.current.y);
+          const deltaZ = Math.abs((accel.z || 0) - lastAccelRef.current.z);
+          
+          const totalShake = deltaX + deltaY + deltaZ;
+          
+          if (totalShake > shakeThreshold) {
+            particles.current.forEach((particle) => {
+              particle.vx = (Math.random() - 0.5) * 10;
+              particle.vy = (Math.random() - 0.5) * 10;
+            });
+          }
+          
+          lastAccelRef.current = {
+            x: accel.x,
+            y: accel.y,
+            z: accel.z || 0,
+          };
+        }
+      }
+    };
 
     const canvas = particlesRef.current;
     if (!canvas) return;
@@ -53,25 +107,6 @@ export default function Home() {
       });
     }
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const centerX = window.innerWidth / 2;
-      const centerY = window.innerHeight / 2;
-      
-      mouseRef.current = {
-        x: (e.clientX - centerX) / centerX,
-        y: (e.clientY - centerY) / centerY,
-      };
-    };
-
-    const handleDeviceOrientation = (e: DeviceOrientationEvent) => {
-      if (e.gamma !== null && e.beta !== null) {
-        mouseRef.current = {
-          x: e.gamma / 45,
-          y: e.beta / 45,
-        };
-      }
-    };
-
     window.addEventListener("mousemove", handleMouseMove);
     
     if (typeof DeviceOrientationEvent !== 'undefined') {
@@ -80,11 +115,13 @@ export default function Home() {
           .then((response: string) => {
             if (response === 'granted') {
               window.addEventListener('deviceorientation', handleDeviceOrientation);
+              window.addEventListener('devicemotion', handleDeviceMotion);
             }
           })
           .catch(() => {});
       } else {
         window.addEventListener('deviceorientation', handleDeviceOrientation);
+        window.addEventListener('devicemotion', handleDeviceMotion);
       }
     }
 
@@ -152,6 +189,7 @@ export default function Home() {
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("deviceorientation", handleDeviceOrientation);
+      window.removeEventListener("devicemotion", handleDeviceMotion);
       window.removeEventListener("resize", resizeCanvas);
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
@@ -159,11 +197,11 @@ export default function Home() {
     };
   }, [mounted]);
 
-  if (!mounted) {
+    if (!mounted) {
     return (
-      <div className="relative min-h-screen bg-black overflow-hidden">
+      <div className="relative h-screen bg-black overflow-hidden" style={{ position: 'fixed', width: '100%', height: '100%' }}>
         <canvas className="absolute top-0 left-0 w-full h-full" />
-                                                           <div className="relative z-10 flex flex-col items-center min-h-screen">
+                                                            <div className="relative z-10 flex flex-col items-center h-screen overflow-hidden">
                <div className="flex-1 flex items-center justify-center px-4">
                  <div className="w-[80%] max-w-[600px] h-auto">
                    <img
@@ -201,13 +239,13 @@ export default function Home() {
   }
 
   return (
-    <div className="relative min-h-screen bg-black overflow-hidden">
+    <div className="relative h-screen bg-black overflow-hidden" style={{ position: 'fixed', width: '100%', height: '100%' }}>
       <canvas
         ref={particlesRef}
         className="absolute top-0 left-0 w-full h-full"
         style={{ zIndex: 0 }}
       />
-      <div className="relative z-10 flex flex-col items-center min-h-screen">
+      <div className="relative z-10 flex flex-col items-center h-screen overflow-hidden">
         <div className="flex-1 flex items-center justify-center">
           <div
             ref={logoRef}
