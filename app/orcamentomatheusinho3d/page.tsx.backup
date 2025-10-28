@@ -268,7 +268,7 @@ export default function Home() {
         className="fixed pointer-events-none w-10 h-10 rounded-full border-2 border-[#00ff5f] transition-opacity duration-300"
         style={{
           background: 'rgba(0, 255, 95, 0.05)',
-          backdropFilter: 'blur(3px)',
+          backdropFilter: 'blur(10px)',
           boxShadow: '0 0 20px rgba(0, 255, 95, 0.5)',
           transform: 'translate(-50%, -50%)',
           zIndex: 9999,
