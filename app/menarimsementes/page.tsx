@@ -15,6 +15,7 @@ interface Particle {
 export default function Orcamento3dPage() {
   const [mounted, setMounted] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const logoRef = useRef<HTMLDivElement>(null);
   const logoImgRef = useRef<HTMLImageElement>(null);
   const particlesRef = useRef<HTMLCanvasElement>(null);
@@ -27,10 +28,58 @@ export default function Orcamento3dPage() {
   const shakeThreshold = 15;
   const cursorRef = useRef<HTMLDivElement>(null);
   const cursorPosition = useRef({ x: 0, y: 0 });
+  const logoRotationRef = useRef({ x: 0, y: 0, z: 0 });
+  const initialLogoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setMounted(true);
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  useEffect(() => {
+    if (mounted) return;
+
+    let animationFrame: number;
+    const animateLogoRotation = () => {
+      if (!initialLogoRef.current) {
+        animationFrame = requestAnimationFrame(animateLogoRotation);
+        return;
+      }
+
+      logoRotationRef.current.x += 0.3;
+      logoRotationRef.current.y += 0.2;
+      logoRotationRef.current.z += 0.1;
+
+      const x = Math.sin(logoRotationRef.current.x * Math.PI / 180) * 3;
+      const y = Math.sin(logoRotationRef.current.y * Math.PI / 180) * 3;
+      const z = Math.sin(logoRotationRef.current.z * Math.PI / 180) * 1.5;
+      
+      initialLogoRef.current.style.transform = `
+        perspective(1000px) 
+        rotateX(${x}deg)
+        rotateY(${y}deg)
+        rotateZ(${z}deg)
+      `;
+
+      animationFrame = requestAnimationFrame(animateLogoRotation);
+    };
+
+    const timeout = setTimeout(() => {
+      animateLogoRotation();
+    }, 100);
+
+    return () => {
+      clearTimeout(timeout);
+      if (animationFrame) {
+        cancelAnimationFrame(animationFrame);
+      }
+    };
+  }, [mounted]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,11 +106,13 @@ export default function Orcamento3dPage() {
         y: (e.clientY - centerY) / centerY,
       };
 
-      cursorPosition.current = { x: e.clientX, y: e.clientY };
-      
-      if (cursorRef.current) {
-        cursorRef.current.style.left = `${e.clientX}px`;
-        cursorRef.current.style.top = `${e.clientY}px`;
+      if (!isMobile) {
+        cursorPosition.current = { x: e.clientX, y: e.clientY };
+        
+        if (cursorRef.current) {
+          cursorRef.current.style.left = `${e.clientX}px`;
+          cursorRef.current.style.top = `${e.clientY}px`;
+        }
       }
     };
 
@@ -203,7 +254,7 @@ export default function Orcamento3dPage() {
     };
 
     const animateCursor = () => {
-      if (cursorRef.current) {
+      if (!isMobile && cursorRef.current) {
         const smoothX = cursorRef.current.offsetLeft;
         const smoothY = cursorRef.current.offsetTop;
         const targetX = cursorPosition.current.x;
@@ -235,14 +286,18 @@ export default function Orcamento3dPage() {
         cancelAnimationFrame(animationFrameRef.current);
       }
     };
-  }, [mounted]);
+  }, [mounted, isMobile]);
 
     if (!mounted) {
     return (
       <div className="relative h-screen bg-black overflow-hidden" style={{ position: 'fixed', width: '100%', height: '100vh', overflow: 'hidden' }}>
         <canvas className="absolute top-0 left-0 w-full h-full" />
                                                             <div className="relative z-10 flex flex-col items-center h-screen overflow-hidden justify-center">
-               <div className="w-[85%] max-w-[800px] h-auto px-4 mb-8 md:mb-12">
+               <div 
+                ref={initialLogoRef}
+                className="w-[85%] max-w-[800px] h-auto px-4 mb-8 md:mb-12"
+                style={{ transformStyle: "preserve-3d" }}
+              >
                  <img
                    src="/logowhite.svg"
                    alt="Logo"
@@ -278,17 +333,19 @@ export default function Orcamento3dPage() {
 
   return (
     <div className="relative min-h-screen bg-black">
-      <div
-        ref={cursorRef}
-        className="fixed pointer-events-none w-10 h-10 rounded-full border-2 border-[#00ff5f] transition-opacity duration-300"
-        style={{
-          background: 'rgba(0, 255, 95, 0.05)',
-          backdropFilter: 'blur(3px)',
-          boxShadow: '0 0 20px rgba(0, 255, 95, 0.5)',
-          transform: 'translate(-50%, -50%)',
-          zIndex: 9999,
-        }}
-      />
+      {!isMobile && (
+        <div
+          ref={cursorRef}
+          className="fixed pointer-events-none w-10 h-10 rounded-full border-2 border-[#00ff5f] transition-opacity duration-300"
+          style={{
+            background: 'rgba(0, 255, 95, 0.05)',
+            backdropFilter: 'blur(3px)',
+            boxShadow: '0 0 20px rgba(0, 255, 95, 0.5)',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 9999,
+          }}
+        />
+      )}
       <canvas
         ref={particlesRef}
         className="fixed top-0 left-0 w-full h-full"
