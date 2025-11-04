@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { motion } from "framer-motion";
 
 interface Particle {
   x: number;
@@ -13,6 +14,7 @@ interface Particle {
 
 export default function Orcamento3dPage() {
   const [mounted, setMounted] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const logoRef = useRef<HTMLDivElement>(null);
   const logoImgRef = useRef<HTMLImageElement>(null);
   const particlesRef = useRef<HTMLCanvasElement>(null);
@@ -29,6 +31,19 @@ export default function Orcamento3dPage() {
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   useEffect(() => {
     if (!mounted) return;
@@ -293,63 +308,53 @@ export default function Orcamento3dPage() {
             className="w-full h-full"
           />
         </div>
-          <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>
-            Desenvolvimento de Marca & Software
+          <h1 className="text-3xl md:text-4xl font-bold mb-6" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>
+            Desenvolvimento de Site Institucional para<br />Menarim Sementes
           </h1>
           <p className="text-lg text-gray-300">
             Soluções completas em identidade e tecnologia para negócios modernos.
           </p>
         </div>
 
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>O que vai ser desenvolvido</h2>
-          <div className="grid md:grid-cols-3 gap-6">
+        <div className="mb-24">
+          <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Características do Website</h2>
+          <div className="grid md:grid-cols-2 gap-6">
+            <div className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
+                <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Responsivo para todos os tamanhos de tela</h3>
+            </div>
+            <div className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
+              <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
+                <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Código em React, o que há de mais avançado e veloz</h3>
+            </div>
             <div className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Identidade de Marca</h3>
-              <ul className="space-y-2 text-gray-300 text-sm text-center">
-                <li>• Logotipo</li>
-                <li>• Tipografia</li>
-                <li>• Identidade visual</li>
-                <li>• Itens de papelaria (adesivo, flyer, cartões de visita e demais peças necessárias)</li>
-              </ul>
+              <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Seguindo a Identidade Visual da Marca e respeitando padronizações</h3>
             </div>
             <div className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Conteúdo de Base</h3>
-              <ul className="space-y-2 text-gray-300 text-sm text-center">
-                <li>• 3 posts base</li>
-                <li>• 3 stories base</li>
-                <li>• Guias de padronização</li>
-              </ul>
-            </div>
-            <div className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
-                <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Plataforma Web</h3>
-              <ul className="space-y-2 text-gray-300 text-sm text-center">
-                <li>• Sistema vitrine de produtos</li>
-                <li>• Gestão de estoque e catálogo</li>
-                <li>• Links integrados com marketplaces</li>
-                <li>• Painel administrativo para banners, promoções e produtos</li>
-                <li>• Design responsivo (desktop e mobile)</li>
-              </ul>
+              <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Otimizado para Google e demais motores de busca</h3>
             </div>
           </div>
         </div>
 
-        <div className="mb-16">
+        <div className="mb-24">
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Prazos de Entrega</h2>
           <div className="grid md:grid-cols-2 gap-6">
             <div className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
@@ -358,8 +363,8 @@ export default function Orcamento3dPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Marca</h3>
-              <p className="text-2xl text-[#00ff5f]">até 10 dias</p>
+              <h3 className="text-xl font-semibold mb-2" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Entrega inicial de layout</h3>
+              <p className="text-2xl text-[#00ff5f]">Até 10 Dias</p>
             </div>
             <div className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
@@ -367,35 +372,31 @@ export default function Orcamento3dPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Plataforma</h3>
-              <p className="text-sm text-gray-300">até 30 dias layout</p>
-              <p className="text-sm text-gray-300">+60 dias entrega</p>
+              <h3 className="text-xl font-semibold mb-2" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Entrega final do código</h3>
+              <p className="text-2xl text-[#00ff5f]">Até 15 Dias</p>
             </div>
           </div>
         </div>
 
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Planos e Valores</h2>
-          <div className="grid md:grid-cols-2 gap-8">
+        <div className="mb-24">
+          <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Investimento e Formas de Pagamento</h2>
+          <div className="grid md:grid-cols-2 gap-6">
             <div className="p-8 rounded-2xl border-2 border-[#00ff5f]/30 backdrop-blur-md bg-white/5 relative overflow-hidden hover:border-[#00ff5f]/50 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ff5f]/10 rounded-full blur-3xl" />
               <div className="relative z-10">
                 <div className="text-center mb-4">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                     <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Opção 1 — Investimento Compartilhado</h3>
+                  <h3 className="text-xl font-bold mb-4" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Investimento</h3>
                 </div>
-                <p className="text-center mb-2"><span className="text-4xl text-[#00ff5f] font-bold">R$ 1.500</span></p>
-                <p className="text-center text-sm mb-2 text-gray-400">(marca + plataforma)</p>
-                <p className="text-center text-sm mb-4">3% do faturamento gerado pela plataforma</p>
+                <p className="text-center mb-6"><span className="text-4xl text-[#00ff5f] font-bold">R$ 1.300</span></p>
                 <p className="text-sm font-semibold mb-2 text-[#00ff5f]">Pagamento:</p>
                 <ul className="space-y-2 text-sm text-gray-300">
-                  <li>• R$ 750 na contratação</li>
-                  <li>• R$ 750 após aprovação da marca e layout</li>
-                  <li>• 3% contínuo enquanto a plataforma estiver ativa</li>
+                  <li>• R$ 650 na contratação</li>
+                  <li>• R$ 650 após entrega final</li>
                 </ul>
               </div>
             </div>
@@ -405,45 +406,21 @@ export default function Orcamento3dPage() {
                 <div className="text-center mb-4">
                   <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                     <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                     </svg>
                   </div>
-                  <h3 className="text-2xl font-bold mb-4" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Opção 2 — Licença Completa</h3>
+                  <h3 className="text-xl font-bold mb-4" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Formas de Pagamento</h3>
                 </div>
-                <p className="text-center mb-2"><span className="text-4xl text-[#00ff5f] font-bold">R$ 6.000</span></p>
-                <p className="text-center text-sm mb-4 text-gray-400">(marca + plataforma + cessão integral)</p>
-                <p className="text-sm font-semibold mb-2 text-[#00ff5f]">Pagamento:</p>
-                <ul className="space-y-2 text-sm text-gray-300">
-                  <li>• R$ 2.000 na contratação</li>
-                  <li>• R$ 2.000 após entrega da marca e layout</li>
-                  <li>• R$ 2.000 na entrega final</li>
+                <ul className="space-y-3 text-gray-300 text-base">
+                  <li className="text-center">• Transferência, PIX ou boleto bancário</li>
+                  <li className="text-center">• Parcelamento disponível: até 12x no cartão de crédito, com acréscimo da taxa da maquininha</li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mb-16">
-          <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Formas de Pagamento</h2>
-          <div className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
-            <div className="text-center mb-4">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
-                <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                </svg>
-              </div>
-            </div>
-            <ul className="space-y-3 text-gray-300 text-base">
-              <li className="text-center">• Transferência, PIX ou boleto bancário</li>
-              <li className="text-center">• Parcelamento disponível: até 12x no cartão de crédito, com acréscimo da taxa da maquininha</li>
-            </ul>
-          </div>
-          <p className="text-center text-gray-400 text-sm mt-4">
-            <em>Observação: Os valores incluem todo o desenvolvimento da marca, identidade, layout e plataforma.</em>
-          </p>
-        </div>
-
-        <div className="mb-16">
+        <div className="mb-24">
           <div className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
             <div className="text-center mb-4">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
@@ -455,12 +432,9 @@ export default function Orcamento3dPage() {
             </div>
             <p className="text-gray-300 mb-2 text-center">Servidor e domínio: responsabilidade do cliente</p>
             <ul className="text-gray-300 text-sm space-y-1 text-center">
-              <li>• Servidor: ~R$ 90/mês</li>
+              <li>• Servidor: ~R$ 45/mês</li>
               <li>• Domínio: ~R$ 40/ano</li>
             </ul>
-            <p className="text-[#00ff5f] text-sm mt-4 font-semibold text-center">
-              Na opção de Investimento Compartilhado, os custos operacionais serão bancados pela NestLab
-            </p>
           </div>
         </div>
 
@@ -469,6 +443,20 @@ export default function Orcamento3dPage() {
         </div>
 
       </div>
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-8 right-8 w-14 h-14 rounded-full border-2 border-[#00ff5f] bg-black/80 backdrop-blur-md flex items-center justify-center hover:bg-[#00ff5f]/20 hover:scale-110 transition-all duration-300 z-50"
+          style={{
+            boxShadow: '0 0 20px rgba(0, 255, 95, 0.5)',
+          }}
+          aria-label="Voltar ao topo"
+        >
+          <svg className="w-6 h-6 text-[#00ff5f]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }
