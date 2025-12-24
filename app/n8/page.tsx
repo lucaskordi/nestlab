@@ -607,10 +607,10 @@ export default function N8Page() {
               <div 
                 className="absolute"
                 style={{
-                  top: '45px',
-                  left: '12px',
-                  right: '12px',
-                  bottom: '45px',
+                  top: '60px',
+                  left: '13px',
+                  right: '13px',
+                  bottom: '60px',
                   borderRadius: '3rem',
                   overflow: 'hidden'
                 }}
