@@ -367,7 +367,7 @@ export default function N8Page() {
             />
           </div>
           <h1 className="text-4xl md:text-5xl font-bold mb-6" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>
-            Sites de Alto Desempenho para<br />Dois Empreendimentos
+            Sites de Alto Desempenho para<br />N8 Incorporadora
           </h1>
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Transforme visitantes em leads qualificados com sites modernos, responsivos e otimizados para conversão
