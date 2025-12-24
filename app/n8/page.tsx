@@ -62,6 +62,18 @@ export default function N8Page() {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showIframeTip, setShowIframeTip] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [formData, setFormData] = useState({
+    razaoSocial: '',
+    cnpj: '',
+    telefoneComercial: '',
+    emailComercial: '',
+    representanteLegal: '',
+    cpf: '',
+    endereco: '',
+    email: '',
+    telefone: ''
+  });
   const logoRef = useRef<HTMLDivElement>(null);
   const logoImgRef = useRef<HTMLImageElement>(null);
   const particlesRef = useRef<HTMLCanvasElement>(null);
@@ -143,6 +155,45 @@ export default function N8Page() {
     if (typeof window !== 'undefined') {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
+  };
+
+  const formatCNPJ = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 14) {
+      return numbers
+        .replace(/^(\d{2})(\d)/, '$1.$2')
+        .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+        .replace(/\.(\d{3})(\d)/, '.$1/$2')
+        .replace(/(\d{4})(\d)/, '$1-$2');
+    }
+    return value;
+  };
+
+  const formatCPF = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      return numbers
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d)/, '$1.$2')
+        .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+    }
+    return value;
+  };
+
+  const formatPhone = (value: string) => {
+    const numbers = value.replace(/\D/g, '');
+    if (numbers.length <= 11) {
+      if (numbers.length <= 10) {
+        return numbers
+          .replace(/(\d{2})(\d)/, '($1) $2')
+          .replace(/(\d{4})(\d)/, '$1-$2');
+      } else {
+        return numbers
+          .replace(/(\d{2})(\d)/, '($1) $2')
+          .replace(/(\d{5})(\d)/, '$1-$2');
+      }
+    }
+    return value;
   };
 
   useEffect(() => {
@@ -478,7 +529,7 @@ export default function N8Page() {
               className="px-8 py-4 rounded-full border-2 border-[#00ff5f] bg-transparent hover:bg-[#00ff5f]/10 text-white font-bold text-lg transition-all duration-300 hover:scale-105"
               style={{ fontFamily: "var(--font-avgard-demi-bold)" }}
             >
-              Falar com Especialista
+              Fale com a Gente
             </a>
             </AnimatedCard>
         </div>
@@ -766,21 +817,19 @@ export default function N8Page() {
                 Entre em contato agora e garante sua condição especial de 2025. 
                 Comece a gerar leads em apenas 7 dias.
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a
-                  href="https://checkout.nubank.com.br/s8V2wdPR2d5jalzp"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-8 py-4 rounded-full border-2 border-[#00ff5f] bg-[#00ff5f]/10 hover:bg-[#00ff5f]/20 text-white font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)]"
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-stretch sm:items-center">
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="px-8 py-4 rounded-full border-2 border-[#00ff5f] bg-[#00ff5f]/10 hover:bg-[#00ff5f]/20 text-white font-bold text-lg transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] w-full sm:w-[200px] flex items-center justify-center"
                   style={{ fontFamily: "var(--font-avgard-demi-bold)" }}
                 >
                   Vamos Começar
-                </a>
+                </button>
                 <a
                   href="https://wa.me/5541984938832"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="px-8 py-4 rounded-full border-2 border-[#00ff5f] bg-transparent hover:bg-[#00ff5f]/10 text-white font-bold text-lg transition-all duration-300 hover:scale-105"
+                  className="px-8 py-4 rounded-full border-2 border-[#00ff5f] bg-transparent hover:bg-[#00ff5f]/10 text-white font-bold text-lg transition-all duration-300 hover:scale-105 w-full sm:w-[200px] text-center flex items-center justify-center"
                   style={{ fontFamily: "var(--font-avgard-demi-bold)" }}
                 >
                   WhatsApp
@@ -841,6 +890,154 @@ export default function N8Page() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 10l7-7m0 0l7 7m-7-7v18" />
           </svg>
         </button>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
+          <div className="bg-black border-2 border-[#00ff5f]/50 rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-white" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Dados para a Geração do Contrato</h2>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-400 hover:text-white transition-colors"
+                aria-label="Fechar modal"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              window.open('https://checkout.nubank.com.br/s8V2wdPR2d5jalzp', '_blank');
+            }} className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold text-[#00ff5f] mb-4" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Dados da Empresa</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Razão Social</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.razaoSocial}
+                      onChange={(e) => setFormData({ ...formData, razaoSocial: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-[#00ff5f]/30 bg-white/5 text-white focus:border-[#00ff5f] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">CNPJ</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.cnpj}
+                      onChange={(e) => setFormData({ ...formData, cnpj: formatCNPJ(e.target.value) })}
+                      className="w-full px-4 py-2 rounded-lg border border-[#00ff5f]/30 bg-white/5 text-white focus:border-[#00ff5f] focus:outline-none"
+                      maxLength={18}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Telefone Comercial</label>
+                    <input
+                      type="tel"
+                      required
+                      value={formData.telefoneComercial}
+                      onChange={(e) => setFormData({ ...formData, telefoneComercial: formatPhone(e.target.value) })}
+                      className="w-full px-4 py-2 rounded-lg border border-[#00ff5f]/30 bg-white/5 text-white focus:border-[#00ff5f] focus:outline-none"
+                      maxLength={15}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">E-mail</label>
+                    <input
+                      type="email"
+                      required
+                      value={formData.emailComercial}
+                      onChange={(e) => setFormData({ ...formData, emailComercial: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-[#00ff5f]/30 bg-white/5 text-white focus:border-[#00ff5f] focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-lg font-semibold text-[#00ff5f] mb-4" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Representante Legal</h3>
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Representante Legal</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.representanteLegal}
+                      onChange={(e) => setFormData({ ...formData, representanteLegal: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-[#00ff5f]/30 bg-white/5 text-white focus:border-[#00ff5f] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">CPF</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.cpf}
+                      onChange={(e) => setFormData({ ...formData, cpf: formatCPF(e.target.value) })}
+                      className="w-full px-4 py-2 rounded-lg border border-[#00ff5f]/30 bg-white/5 text-white focus:border-[#00ff5f] focus:outline-none"
+                      maxLength={14}
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Endereço</label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.endereco}
+                      onChange={(e) => setFormData({ ...formData, endereco: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-[#00ff5f]/30 bg-white/5 text-white focus:border-[#00ff5f] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">E-mail</label>
+                    <input
+                      type="email"
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      className="w-full px-4 py-2 rounded-lg border border-[#00ff5f]/30 bg-white/5 text-white focus:border-[#00ff5f] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">Telefone</label>
+                    <input
+                      type="tel"
+                      required
+                      value={formData.telefone}
+                      onChange={(e) => setFormData({ ...formData, telefone: formatPhone(e.target.value) })}
+                      className="w-full px-4 py-2 rounded-lg border border-[#00ff5f]/30 bg-white/5 text-white focus:border-[#00ff5f] focus:outline-none"
+                      maxLength={15}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-4 justify-end pt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="px-6 py-3 rounded-full border-2 border-[#00ff5f] bg-transparent hover:bg-[#00ff5f]/10 text-white font-bold transition-all duration-300"
+                  style={{ fontFamily: "var(--font-avgard-demi-bold)" }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-3 rounded-full border-2 border-[#00ff5f] bg-[#00ff5f]/10 hover:bg-[#00ff5f]/20 text-white font-bold transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)]"
+                  style={{ fontFamily: "var(--font-avgard-demi-bold)" }}
+                >
+                  Ir Para Pagamento
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
     </div>
   );
