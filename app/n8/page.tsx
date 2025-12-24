@@ -598,7 +598,7 @@ export default function N8Page() {
             </div>
           )}
           <AnimatedCard className="flex justify-center">
-            <div className="relative" style={{ width: '375px', height: '812px' }}>
+            <div className="relative w-full max-w-[375px] aspect-[375/812]">
               <img
                 src="/iphone17.png"
                 alt="iPhone 17 Pro Mockup"
@@ -607,10 +607,10 @@ export default function N8Page() {
               <div 
                 className="absolute"
                 style={{
-                  top: '60px',
-                  left: '13px',
-                  right: '13px',
-                  bottom: '60px',
+                  top: '4.7%',
+                  left: '3.5%',
+                  right: '3.5%',
+                  bottom: '4.7%',
                   borderRadius: '3rem',
                   overflow: 'hidden'
                 }}
