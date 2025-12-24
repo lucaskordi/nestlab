@@ -76,6 +76,7 @@ export default function N8Page() {
   const cursorPosition = useRef({ x: 0, y: 0 });
   const logoRotationRef = useRef({ x: 0, y: 0, z: 0 });
   const initialLogoRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -143,6 +144,56 @@ export default function N8Page() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
+
+  useEffect(() => {
+    if (!isMobile || typeof window === 'undefined' || !iframeRef.current) return;
+
+    const iframe = iframeRef.current;
+    const iframeContainer = iframe.parentElement;
+    if (!iframeContainer) return;
+
+    let touchStartCount = 0;
+    let isTwoFingerScroll = false;
+
+    const handleTouchStart = (e: TouchEvent) => {
+      touchStartCount = e.touches.length;
+      isTwoFingerScroll = touchStartCount >= 2;
+      
+      // Se for um dedo, marca para bloquear
+      if (touchStartCount === 1) {
+        isTwoFingerScroll = false;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      // Se começou com um dedo, sempre bloqueia
+      if (!isTwoFingerScroll && e.touches.length === 1) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      // Se tiver dois ou mais dedos, permite
+      if (e.touches.length >= 2) {
+        isTwoFingerScroll = true;
+      }
+    };
+
+    const handleTouchEnd = () => {
+      touchStartCount = 0;
+      isTwoFingerScroll = false;
+    };
+
+    iframeContainer.addEventListener('touchstart', handleTouchStart, { passive: false, capture: true });
+    iframeContainer.addEventListener('touchmove', handleTouchMove, { passive: false, capture: true });
+    iframeContainer.addEventListener('touchend', handleTouchEnd, { capture: true });
+    iframeContainer.addEventListener('touchcancel', handleTouchEnd, { capture: true });
+
+    return () => {
+      iframeContainer.removeEventListener('touchstart', handleTouchStart, { capture: true } as any);
+      iframeContainer.removeEventListener('touchmove', handleTouchMove, { capture: true } as any);
+      iframeContainer.removeEventListener('touchend', handleTouchEnd, { capture: true } as any);
+      iframeContainer.removeEventListener('touchcancel', handleTouchEnd, { capture: true } as any);
+    };
+  }, [isMobile, mounted]);
 
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
@@ -556,15 +607,16 @@ export default function N8Page() {
               <div 
                 className="absolute"
                 style={{
-                  top: '60px',
+                  top: '45px',
                   left: '12px',
                   right: '12px',
-                  bottom: '55px',
+                  bottom: '45px',
                   borderRadius: '3rem',
                   overflow: 'hidden'
                 }}
               >
                 <iframe
+                  ref={iframeRef}
                   src="https://verus.n8incorporadora.com/"
                   className="w-full h-full border-0 bg-white"
                   title="Verus N8 Incorporadora"
