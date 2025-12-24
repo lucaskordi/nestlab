@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import path from "path";
 
 const nextConfig: NextConfig = {
   webpack: (config) => {
@@ -8,6 +9,7 @@ const nextConfig: NextConfig = {
     return config;
   },
   reactStrictMode: false,
+  outputFileTracingRoot: path.join(__dirname),
 };
 
 export default nextConfig;

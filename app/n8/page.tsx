@@ -1,7 +1,52 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "framer-motion";
+
+interface AnimatedCardProps {
+  children: React.ReactNode;
+  delay?: number;
+  className?: string;
+  animate?: boolean;
+}
+
+function AnimatedCard({ children, delay = 0, className = "", animate = true }: AnimatedCardProps) {
+  const [inView, setInView] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!animate || !ref.current || typeof window === 'undefined') return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(ref.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [animate]);
+
+  if (!animate) {
+    return <div className={className}>{children}</div>;
+  }
+
+  return (
+    <div
+      ref={ref}
+      className={`transition-opacity duration-500 ${inView ? 'opacity-100' : 'opacity-0'} ${className}`}
+      style={{ transitionDelay: `${delay}ms` }}
+    >
+      {children}
+    </div>
+  );
+}
 
 interface Particle {
   x: number;
@@ -34,6 +79,7 @@ export default function N8Page() {
 
   useEffect(() => {
     setMounted(true);
+    if (typeof window === 'undefined') return;
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768 || 'ontouchstart' in window);
     };
@@ -43,7 +89,7 @@ export default function N8Page() {
   }, []);
 
   useEffect(() => {
-    if (mounted) return;
+    if (mounted || typeof window === 'undefined') return;
 
     let animationFrame: number;
     const animateLogoRotation = () => {
@@ -83,6 +129,7 @@ export default function N8Page() {
   }, [mounted]);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
     const handleScroll = () => {
       setShowScrollTop(window.scrollY > 300);
     };
@@ -92,11 +139,13 @@ export default function N8Page() {
   }, []);
 
   const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || typeof window === 'undefined') return;
 
     const handleMouseMove = (e: MouseEvent) => {
       const centerX = window.innerWidth / 2;
@@ -160,7 +209,7 @@ export default function N8Page() {
     };
 
     const canvas = particlesRef.current;
-    if (!canvas) return;
+    if (!canvas || typeof window === 'undefined') return;
 
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
@@ -185,7 +234,7 @@ export default function N8Page() {
 
     window.addEventListener("mousemove", handleMouseMove);
     
-    if (typeof DeviceOrientationEvent !== 'undefined') {
+    if (typeof window !== 'undefined' && typeof DeviceOrientationEvent !== 'undefined') {
       if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
         (DeviceOrientationEvent as any).requestPermission()
           .then((response: string) => {
@@ -372,12 +421,7 @@ export default function N8Page() {
           <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Transforme visitantes em leads qualificados com sites modernos, responsivos e otimizados para conversão
           </p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex justify-center items-center"
-          >
+          <AnimatedCard className="flex justify-center items-center">
             <a
               href="#contato"
               className="px-8 py-4 rounded-full border-2 border-[#00ff5f] bg-transparent hover:bg-[#00ff5f]/10 text-white font-bold text-lg transition-all duration-300 hover:scale-105"
@@ -385,134 +429,56 @@ export default function N8Page() {
             >
               Falar com Especialista
             </a>
-          </motion.div>
+            </AnimatedCard>
         </div>
 
         <div className="mb-24">
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Produto Final</h2>
           <p className="text-center text-gray-300 mb-8">Cada site incluirá as seguintes seções:</p>
           <div className="grid md:grid-cols-3 gap-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            <AnimatedCard className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Banners Principais</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={100} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Sobre</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={200} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Fotos</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={300} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Experiência 360</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={400} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Informações do Empreendimento</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={500} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Plantas</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={600} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Localização e Walkability</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.7 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={700} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Sobre a Incorporadora</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={800} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Estágio da Obra</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.9 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={900} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Contato</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 1.0 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={1000} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Download de App Comercial</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 1.1 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={1100} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <h3 className="text-lg font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Demais Interações</h3>
-            </motion.div>
+            </AnimatedCard>
           </div>
         </div>
 
         <div className="mb-24">
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Por Que Escolher Esta Solução?</h2>
           <div className="grid md:grid-cols-3 gap-6 mb-12">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            <AnimatedCard className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
@@ -520,14 +486,8 @@ export default function N8Page() {
               </div>
               <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Geração de Leads</h3>
               <p className="text-gray-300 text-sm text-center">MVP inicial pronto em 7 dias para começar a capturar leads imediatamente</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={100} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -535,14 +495,8 @@ export default function N8Page() {
               </div>
               <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Evolução Contínua</h3>
               <p className="text-gray-300 text-sm text-center">Manutenção mensal para adicionar conteúdo conforme os materiais ficam disponíveis</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={200} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
@@ -550,15 +504,9 @@ export default function N8Page() {
               </div>
               <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Tecnologia Moderna</h3>
               <p className="text-gray-300 text-sm text-center">React, responsivo e otimizado para SEO desde o primeiro dia</p>
-            </motion.div>
+            </AnimatedCard>
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="p-8 rounded-2xl border-2 border-[#00ff5f]/30 backdrop-blur-md bg-white/5 relative overflow-hidden"
-          >
+          <AnimatedCard className="p-8 rounded-2xl border-2 border-[#00ff5f]/30 backdrop-blur-md bg-white/5 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ff5f]/10 rounded-full blur-3xl" />
             <div className="relative z-10">
               <h3 className="text-2xl font-bold mb-4 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Estratégia de Lançamento</h3>
@@ -571,19 +519,14 @@ export default function N8Page() {
                 Resultado: Site no ar em 7 dias, gerando leads enquanto evoluímos juntos
               </p>
             </div>
-          </motion.div>
+            </AnimatedCard>
         </div>
 
         <div className="mb-24">
           <h2 className="text-3xl font-bold mb-4 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Referência de Trabalho</h2>
           <p className="text-center text-gray-400 mb-8">Veja um exemplo de site já desenvolvido para a N8 Incorporadora</p>
           {isMobile && showIframeTip && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="mb-4 mx-4 p-4 rounded-xl border-2 border-[#00ff5f]/50 bg-[#00ff5f]/10 backdrop-blur-md text-center relative"
-            >
+            <div className="mb-4 mx-4 p-4 rounded-xl border-2 border-[#00ff5f]/50 bg-[#00ff5f]/10 backdrop-blur-md text-center relative">
               <button
                 onClick={() => setShowIframeTip(false)}
                 className="absolute top-2 right-2 text-[#00ff5f] hover:text-[#00ff5f]/80 transition-colors"
@@ -593,21 +536,17 @@ export default function N8Page() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
-              <p className="text-sm text-white font-semibold" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>
-                📱 Use dois dedos para navegar no site
-              </p>
-              <p className="text-xs text-gray-300 mt-1">
-                Um dedo rola a página da NestLab
-              </p>
-            </motion.div>
+              <div className="flex items-center justify-center gap-2 mb-2">
+                <svg className="w-5 h-5 text-[#00ff5f]" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <p className="text-sm text-white font-semibold" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>
+                  Use dois dedos para navegar no site
+                </p>
+              </div>
+            </div>
           )}
-          <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.6 }}
-            className="flex justify-center"
-          >
+          <AnimatedCard className="flex justify-center">
             <div className="relative" style={{ width: '375px', height: '812px' }}>
               <img
                 src="/iphone17.png"
@@ -638,7 +577,7 @@ export default function N8Page() {
                 />
               </div>
             </div>
-          </motion.div>
+            </AnimatedCard>
           <div className="text-center mt-8">
             <a
               href="https://verus.n8incorporadora.com/"
@@ -654,75 +593,45 @@ export default function N8Page() {
         <div className="mb-24">
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Características do Website</h2>
           <div className="grid md:grid-cols-2 gap-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            <AnimatedCard className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Responsivo para todos os tamanhos de tela</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={100} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Site desenvolvido em React</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={200} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Otimizado para Google</h3>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={300} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Seguindo a Identidade Visual da Marca e respeitando padronizações</h3>
-            </motion.div>
+            </AnimatedCard>
           </div>
         </div>
 
         <div className="mb-24">
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Prazo de Entrega MVP</h2>
           <div className="flex justify-center">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5 }}
-              className="p-8 rounded-2xl border-2 border-[#00ff5f]/30 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/50 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,95,0.5)] transition-all duration-300 max-w-md w-full"
-            >
+            <AnimatedCard className="p-8 rounded-2xl border-2 border-[#00ff5f]/30 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/50 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,95,0.5)] transition-all duration-300 max-w-md w-full">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -730,7 +639,7 @@ export default function N8Page() {
               </div>
               <h3 className="text-xl font-semibold mb-2" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Prazo de entrega MVP</h3>
               <p className="text-2xl text-[#00ff5f]">Até 07 dias após recebimento do briefing e materiais</p>
-            </motion.div>
+            </AnimatedCard>
           </div>
         </div>
 
@@ -738,13 +647,7 @@ export default function N8Page() {
           <h2 className="text-3xl font-bold mb-4 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Investimento</h2>
           <p className="text-center text-gray-400 mb-8">Dois sites completos com manutenção mensal inclusa</p>
           <div className="grid md:grid-cols-2 gap-6 mb-8">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5 }}
-              className="p-8 rounded-2xl border-2 border-[#00ff5f]/30 backdrop-blur-md bg-white/5 relative overflow-hidden hover:border-[#00ff5f]/50 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            <AnimatedCard className="p-8 rounded-2xl border-2 border-[#00ff5f]/30 backdrop-blur-md bg-white/5 relative overflow-hidden hover:border-[#00ff5f]/50 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ff5f]/10 rounded-full blur-3xl" />
               <div className="relative z-10">
                 <div className="text-center mb-4">
@@ -758,16 +661,10 @@ export default function N8Page() {
                 <p className="text-center mb-2"><span className="text-4xl text-[#00ff5f] font-bold">R$ 1.500</span></p>
                 <p className="text-center text-sm mb-4 text-gray-400">por site</p>
                 <p className="text-center text-sm font-semibold mb-2 text-[#00ff5f]">Manutenção mensal:</p>
-                <p className="text-center text-sm text-gray-300 mb-4">R$ 100/mês por site com atualizações</p>
+                <p className="text-center text-sm text-gray-300 mb-4">R$ 100/mês por site <span className="text-[#00ff5f] font-semibold">somente em meses com atualizações</span></p>
               </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-8 rounded-2xl border-2 border-[#00ff5f]/50 backdrop-blur-md bg-white/5 relative overflow-hidden hover:border-[#00ff5f]/70 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={100} className="p-8 rounded-2xl border-2 border-[#00ff5f]/50 backdrop-blur-md bg-white/5 relative overflow-hidden hover:border-[#00ff5f]/70 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_40px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="absolute top-0 right-0 w-32 h-32 bg-[#00ff5f]/20 rounded-full blur-3xl" />
               <div className="absolute top-4 right-4 px-3 py-1 rounded-full bg-[#00ff5f]/20 border border-[#00ff5f] flex items-center justify-center">
                 <span className="text-xs text-[#00ff5f] font-bold leading-none text-center">OFERTA<br />LIMITADA</span>
@@ -785,18 +682,12 @@ export default function N8Page() {
                 <p className="text-center mb-2"><span className="text-4xl text-[#00ff5f] font-bold">R$ 1.200</span></p>
                 <p className="text-center text-sm mb-4 text-gray-400">por site</p>
                 <p className="text-center text-sm font-semibold mb-2 text-[#00ff5f]">Manutenção mensal:</p>
-                <p className="text-center text-sm text-gray-300 mb-4">R$ 100/mês por site com atualizações</p>
+                <p className="text-center text-sm text-gray-300 mb-4">R$ 100/mês por site <span className="text-[#00ff5f] font-semibold">somente em meses com atualizações</span></p>
                 <p className="text-xs text-center text-gray-400 italic">Válido apenas para contratos fechados em 2025</p>
               </div>
-            </motion.div>
+            </AnimatedCard>
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="p-6 rounded-2xl border-2 border-[#00ff5f]/40 backdrop-blur-md bg-white/5 text-center"
-          >
+          <AnimatedCard className="p-6 rounded-2xl border-2 border-[#00ff5f]/40 backdrop-blur-md bg-white/5 text-center">
             <p className="text-lg font-semibold mb-2 text-[#00ff5f]" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Sinal de Negócio</p>
             <p className="text-2xl text-white font-bold mb-2">50% do valor total dos dois projetos</p>
             <div className="grid md:grid-cols-2 gap-4 mt-4">
@@ -811,17 +702,11 @@ export default function N8Page() {
                 <p className="text-sm text-[#00ff5f] font-semibold">Sinal: R$ 1.200</p>
               </div>
             </div>
-          </motion.div>
+            </AnimatedCard>
         </div>
 
         <div id="contato" className="mb-24 scroll-mt-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-            className="p-10 rounded-2xl border-2 border-[#00ff5f]/50 backdrop-blur-md bg-white/5 relative overflow-hidden text-center"
-          >
+          <AnimatedCard className="p-10 rounded-2xl border-2 border-[#00ff5f]/50 backdrop-blur-md bg-white/5 relative overflow-hidden text-center">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#00ff5f]/10 rounded-full blur-3xl" />
             <div className="relative z-10">
               <h2 className="text-3xl font-bold mb-4" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Pronto para Começar?</h2>
@@ -850,19 +735,13 @@ export default function N8Page() {
                 </a>
               </div>
             </div>
-          </motion.div>
+            </AnimatedCard>
         </div>
 
         <div className="mb-24">
           <h2 className="text-3xl font-bold mb-8 text-center" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Garantias e Suporte</h2>
           <div className="grid md:grid-cols-3 gap-6">
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            <AnimatedCard className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -870,14 +749,8 @@ export default function N8Page() {
               </div>
               <h3 className="text-lg font-semibold mb-2" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Entrega Garantida</h3>
               <p className="text-sm text-gray-300">MVP pronto em 7 dias ou seu dinheiro de volta</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={100} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -885,14 +758,8 @@ export default function N8Page() {
               </div>
               <h3 className="text-lg font-semibold mb-2" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Suporte Contínuo</h3>
               <p className="text-sm text-gray-300">Manutenção mensal com atualizações e suporte técnico</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300"
-            >
+            </AnimatedCard>
+            <AnimatedCard delay={200} className="p-6 rounded-2xl border border-[#00ff5f]/20 backdrop-blur-md bg-white/5 text-center hover:border-[#00ff5f]/40 hover:bg-white/10 hover:scale-105 hover:shadow-[0_0_30px_rgba(0,255,95,0.5)] transition-all duration-300">
               <div className="w-16 h-16 mx-auto mb-4 rounded-full border-2 border-[#00ff5f] flex items-center justify-center">
                 <svg className="w-8 h-8" fill="none" stroke="#00ff5f" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -900,7 +767,7 @@ export default function N8Page() {
               </div>
               <h3 className="text-lg font-semibold mb-2" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Código Proprietário</h3>
               <p className="text-sm text-gray-300">Você é dono do código e pode evoluir quando quiser</p>
-            </motion.div>
+            </AnimatedCard>
           </div>
         </div>
 
