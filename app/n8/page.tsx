@@ -910,7 +910,7 @@ export default function N8Page() {
 
             <form onSubmit={(e) => {
               e.preventDefault();
-              window.open('https://checkout.nubank.com.br/s8V2wdPR2d5jalzp', '_blank');
+              window.open('https://checkout.nubank.com.br/iK4WL8MxWH5jalzp', '_blank');
             }} className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold text-[#00ff5f] mb-4" style={{ fontFamily: "var(--font-avgard-demi-bold)" }}>Dados da Empresa</h3>
